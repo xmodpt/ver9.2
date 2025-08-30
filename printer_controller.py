@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Main printer controller class
+Main printer controller class - OPTIMIZED FOR SPEED
 """
 
 import time
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class PrinterController:
     """
-    Main printer controller that handles all printer operations
+    Main printer controller that handles all printer operations - OPTIMIZED
     """
     
     def __init__(self):
@@ -38,16 +38,16 @@ class PrinterController:
             if not self.communicator.connect():
                 return False
             
-            # Initialize SD card
+            # Initialize SD card with shorter timeout
             try:
-                self.communicator.send_command("M21")
-                time.sleep(1)
+                self.communicator.send_command("M21", timeout=2)
+                time.sleep(0.5)  # Reduced sleep
             except Exception as e:
                 logger.debug(f"SD initialization warning: {e}")
             
-            # Get firmware version
+            # Get firmware version with shorter timeout
             try:
-                version_response = self.communicator.send_command("M115")
+                version_response = self.communicator.send_command("M115", timeout=2)
                 if version_response and "FIRMWARE_NAME:" in version_response:
                     if "PROTOCOL_VERSION:" in version_response:
                         parts = version_response.split("PROTOCOL_VERSION:")
@@ -113,7 +113,7 @@ class PrinterController:
             return PrintStatus(state=PrinterState.UNKNOWN)
             
         try:
-            response = self.communicator.send_command("M27")
+            response = self.communicator.send_command("M27", timeout=1.5)  # Faster timeout
             if response:
                 if "SD printing byte" in response:
                     match = self.communicator.regex_sdPrintingByte.search(response)
@@ -154,7 +154,7 @@ class PrinterController:
     def get_z_position(self):
         """Get current Z position"""
         try:
-            response = self.communicator.send_command("M114")
+            response = self.communicator.send_command("M114", timeout=1.5)  # Faster timeout
             if response and "Z:" in response:
                 match = self.communicator.parse_M4000["floatZ"].search(response)
                 if match:
@@ -165,59 +165,62 @@ class PrinterController:
             return self.z_position
     
     def select_file(self, filename):
-        """Select file for printing"""
+        """Select file for printing - OPTIMIZED"""
         try:
-            logger.info(f"select_file called with filename: {filename}")
+            logger.info(f"select_file called with filename: '{filename}'")
+            
+            # Clean the filename - remove any extra quotes or whitespace
+            filename = str(filename).strip().strip('"').strip("'")
+            logger.info(f"Cleaned filename: '{filename}'")
             
             # Initialize SD card first
             logger.info("Initializing SD card with M21")
-            self.communicator.send_command("M21")
-            time.sleep(1)
+            self.communicator.send_command("M21", timeout=2)
+            time.sleep(0.5)  # Reduced sleep
             
-            # Select the file
-            logger.info(f"Selecting file with M23: {filename}")
-            response = self.communicator.send_command(f"M23 {filename}", timeout=10)
-            logger.info(f"M23 response: {response}")
+            # Select the file with shorter timeout for faster response
+            logger.info(f"Selecting file with M23: '{filename}'")
+            response = self.communicator.send_command(f"M23 {filename}", timeout=3)
+            logger.info(f"M23 response: '{response}'")
             
-            if response and ("ok" in response.lower() or "file opened" in response.lower()):
+            if response and ("ok" in response.lower() or "file opened" in response.lower() or "File selected" in response):
                 self.selected_file = filename
-                logger.info(f"File selected successfully: {filename}")
+                logger.info(f"File selected successfully: '{filename}'")
                 return True
             else:
-                logger.warning(f"File selection failed: {response}")
+                logger.warning(f"File selection failed: '{response}'")
                 return False
         except Exception as e:
-            logger.error(f"Error selecting file {filename}: {e}")
+            logger.error(f"Error selecting file '{filename}': {e}")
             return False
     
     def start_printing(self, filename=None):
-        """Start printing selected file"""
+        """Start printing selected file - OPTIMIZED"""
         try:
-            logger.info(f"start_printing called with filename: {filename}")
-            logger.info(f"Current selected_file: {self.selected_file}")
+            logger.info(f"start_printing called with filename: '{filename}'")
             
             if filename:
-                logger.info(f"Attempting to select file: {filename}")
+                logger.info(f"Attempting to select file: '{filename}'")
                 if not self.select_file(filename):
-                    logger.error(f"Failed to select file: {filename}")
+                    logger.error(f"Failed to select file: '{filename}'")
                     return False
-                logger.info(f"File selection successful: {filename}")
+                logger.info(f"File selection successful: '{filename}'")
                     
             if not self.selected_file:
                 logger.error("No file selected for printing")
-                logger.error(f"filename parameter: {filename}")
-                logger.error(f"self.selected_file: {self.selected_file}")
                 return False
                 
-            logger.info(f"Starting print: {self.selected_file}")
-            response = self.communicator.send_command(f"M6030 '{self.selected_file}'", timeout=15)
+            logger.info(f"Starting print: '{self.selected_file}'")
+            
+            # Use faster timeout for print start
+            response = self.communicator.send_command(f"M6030 '{self.selected_file}'", timeout=8)
             
             if response and "ok" in response.lower():
                 self.print_status.state = PrinterState.PRINTING
-                logger.info(f"Started printing: {self.selected_file}")
+                logger.info(f"Started printing: '{self.selected_file}'")
                 return True
             else:
-                logger.warning(f"Print start failed: {response}")
+                logger.warning(f"Print start failed: '{response}'")
                 return False
             
         except Exception as e:
@@ -227,7 +230,7 @@ class PrinterController:
     def pause_printing(self):
         """Pause current print"""
         try:
-            response = self.communicator.send_command("M25")
+            response = self.communicator.send_command("M25", timeout=2)  # Faster timeout
             if response and "ok" in response.lower():
                 self.print_status.state = PrinterState.PAUSED
                 logger.info("Print paused")
@@ -240,7 +243,7 @@ class PrinterController:
     def resume_printing(self):
         """Resume paused print"""
         try:
-            response = self.communicator.send_command("M24")
+            response = self.communicator.send_command("M24", timeout=2)  # Faster timeout
             if response and "ok" in response.lower():
                 self.print_status.state = PrinterState.PRINTING
                 logger.info("Print resumed")
@@ -253,7 +256,7 @@ class PrinterController:
     def stop_printing(self):
         """Stop current print"""
         try:
-            response = self.communicator.send_command("M33")
+            response = self.communicator.send_command("M33", timeout=2)  # Faster timeout
             if response and "ok" in response.lower():
                 self.print_status.state = PrinterState.IDLE
                 self.print_status.progress_percent = 0
@@ -269,7 +272,7 @@ class PrinterController:
     def move_to_home(self):
         """Home Z axis"""
         try:
-            response = self.communicator.send_command("G28 Z0")
+            response = self.communicator.send_command("G28 Z0", timeout=10)  # Homing can take longer
             return response and "ok" in response.lower()
         except Exception as e:
             logger.error(f"Error homing Z: {e}")
@@ -278,7 +281,7 @@ class PrinterController:
     def move_by(self, distance):
         """Move Z axis by relative distance"""
         try:
-            response = self.communicator.send_command(f"G91\nG1 Z{distance} F600\nG90")
+            response = self.communicator.send_command(f"G91\nG1 Z{distance} F600\nG90", timeout=5)
             return response and "ok" in response.lower()
         except Exception as e:
             logger.error(f"Error moving Z by {distance}: {e}")
@@ -287,8 +290,20 @@ class PrinterController:
     def reboot(self):
         """Reboot printer"""
         try:
-            self.communicator.send_command("M999")
+            self.communicator.send_command("M999", timeout=1)
             return True  # Don't wait for response as printer reboots
         except Exception as e:
             logger.error(f"Error rebooting printer: {e}")
             return False
+    
+    def force_reset_state(self):
+        """Force reset printer state to IDLE"""
+        try:
+            self.print_status.state = PrinterState.IDLE
+            self.print_status.progress_percent = 0
+            self.print_status.current_byte = 0
+            self.print_status.total_bytes = 0
+            self.selected_file = ""
+            logger.info("Printer state force reset to IDLE")
+        except Exception as e:
+            logger.error(f"Error force resetting printer state: {e}")

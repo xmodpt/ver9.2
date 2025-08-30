@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Serial communication handler for printer communication
+Serial communication handler for printer communication - FIXED FOR SPEED
 """
 
 import time
@@ -50,24 +50,24 @@ class SerialCommunicator:
             if self.connection and self.connection.is_open:
                 self.connection.close()
                 
-            time.sleep(1)
+            time.sleep(0.5)  # Reduced delay
                 
             self.connection = serial.Serial(
                 port=self.port,
                 baudrate=self.baudrate,
-                timeout=self.timeout,
+                timeout=1.0,  # Reduced timeout for faster response
                 exclusive=False
             )
             
-            # Wait for connection to stabilize
-            time.sleep(2)
+            # Reduced wait time for connection to stabilize
+            time.sleep(1)
             
             # Clear any pending data
             self.connection.reset_input_buffer()
             self.connection.reset_output_buffer()
             
             # Test connection with hello command
-            response = self.send_command("M4002")
+            response = self.send_command("M4002", timeout=2)  # Shorter timeout
             if response:
                 self.is_connected = True
                 logger.info("Serial connection established")
@@ -92,7 +92,7 @@ class SerialCommunicator:
             logger.error(f"Error disconnecting: {e}")
     
     def send_command(self, command, timeout=None):
-        """Send command and return response"""
+        """Send command and return response - OPTIMIZED FOR SPEED"""
         if not self.connection or not self.connection.is_open:
             raise Exception("Serial connection not established")
             
@@ -108,32 +108,28 @@ class SerialCommunicator:
                 self.connection.write(command_bytes)
                 self.connection.flush()
                 
-                # Wait for response
-                response_timeout = timeout or (self.timeout * 3 if 'M6030' in command or 'M23' in command else self.timeout)
+                # FASTER timeout handling
+                response_timeout = timeout or 1.0  # Much faster default timeout
+                
+                # Special case for slow commands only
+                if any(cmd in command for cmd in ['M6030', 'M23']):
+                    response_timeout = 5.0
+                
                 response = ""
                 start_time = time.time()
-                
-                # For multi-command sequences, wait longer and collect multiple responses
-                is_multi_command = '\n' in command
-                if is_multi_command:
-                    response_timeout *= 2  # Double timeout for multi-commands
-                    logger.debug(f"Multi-command detected, extended timeout to {response_timeout}s")
                 
                 while time.time() - start_time < response_timeout:
                     if self.connection.in_waiting > 0:
                         try:
                             char = self.connection.read(1).decode('latin-1', errors='ignore')
                             response += char
-                            # For multi-commands, look for multiple 'ok' responses
-                            if is_multi_command and response.count('ok') >= command.count('\n') + 1:
-                                break
-                            # For single commands, break on newline
-                            elif not is_multi_command and (response.endswith('\n') or response.endswith('\r\n')):
+                            # Break immediately on newline for faster response
+                            if char in ['\n', '\r']:
                                 break
                         except UnicodeDecodeError:
                             continue
                     else:
-                        time.sleep(0.01)
+                        time.sleep(0.001)  # Much smaller sleep for responsiveness
                 
                 # Process response
                 response = self._process_response(response.strip(), command.strip())
@@ -158,16 +154,6 @@ class SerialCommunicator:
         except:
             pass
         
-        # For multi-command sequences, ensure we have proper response handling
-        if '\n' in original_command:
-            # Count expected 'ok' responses (one per command line)
-            expected_oks = original_command.count('\n') + 1
-            actual_oks = response.lower().count('ok')
-            
-            if actual_oks < expected_oks:
-                logger.debug(f"Multi-command response: expected {expected_oks} 'ok's, got {actual_oks}")
-                # This is normal for some firmware - don't treat as error
-            
         # Fix common firmware response issues
         if response == "wait" or response.startswith("wait"):
             self._log_replacement("wait", response, "echo:busy processing")

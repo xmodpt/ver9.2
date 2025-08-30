@@ -444,9 +444,23 @@ class ModernFileManager {
         });
     }
     
+    // FIXED createFileCard method - integrating the fixes from your first document
     createFileCard(file) {
+        // Create a clean filename without any special characters for the onclick
+        const cleanFileName = file.name.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        
         // Safely encode file data using base64 to avoid JSON escaping issues
-        const fileDataBase64 = btoa(JSON.stringify(file));
+        const fileDataBase64 = btoa(JSON.stringify({
+            name: file.name,  // Ensure the name is properly stored
+            size: file.size,
+            size_mb: file.size_mb || (file.size / (1024 * 1024)).toFixed(1),
+            extension: file.extension,
+            modified: file.modified,
+            path: file.path,
+            thumbnail: file.thumbnail,
+            has_thumbnail: file.has_thumbnail,
+            metadata: file.metadata || null
+        }));
         
         const thumbnailHtml = file.has_thumbnail ? 
             `<img src="${file.thumbnail}" 
@@ -458,7 +472,7 @@ class ModernFileManager {
                   title="Click to view larger thumbnail"
                   data-has-thumbnail="true"
                   data-thumbnail-src="${file.thumbnail}"
-                  data-file-name="${file.name}"
+                  data-file-name="${cleanFileName}"
                   data-file-data="${fileDataBase64}">` :
             `<div class="file-placeholder">${this.getFileIcon(file.extension)}</div>`;
         
@@ -466,7 +480,7 @@ class ModernFileManager {
         const printSettingsHtml = file.metadata ? this.createPrintSettingsHtml(file.metadata) : '';
         
         return `
-            <div class="modern-file-card file-card-enhanced" data-filename="${file.name}">
+            <div class="modern-file-card file-card-enhanced" data-filename="${cleanFileName}">
                 <div class="file-thumbnail-container">
                     ${thumbnailHtml}
                     <div class="file-format-badge">${file.extension.replace('.', '').toUpperCase()}</div>
@@ -479,7 +493,7 @@ class ModernFileManager {
                     <div class="file-metadata">
                         <div class="file-meta-item">
                             <span class="file-meta-label">Size</span>
-                            <span class="file-meta-value">${file.size_mb} MB</span>
+                            <span class="file-meta-value">${file.size_mb || (file.size / (1024 * 1024)).toFixed(1)} MB</span>
                         </div>
                         <div class="file-meta-item">
                             <span class="file-meta-label">Modified</span>
@@ -491,18 +505,18 @@ class ModernFileManager {
                     ${printSettingsHtml}
                     
                     <div class="file-actions">
-                        <button class="file-action-btn btn-primary" onclick="modernFileManager.selectAndPrint('${file.name}')">
+                        <button class="file-action-btn btn-primary" onclick="modernFileManager.selectAndPrint('${cleanFileName}')">
                             <i class="fas fa-print"></i> Print
                         </button>
-                        <button class="file-action-btn btn-secondary" onclick="modernFileManager.downloadFile('${file.name}')">
+                        <button class="file-action-btn btn-secondary" onclick="modernFileManager.downloadFile('${cleanFileName}')">
                             <i class="fas fa-download"></i> Download
                         </button>
                         ${file.has_thumbnail ? 
-                            `<button class="file-action-btn btn-info" onclick="modernFileManager.openThumbnailModal('${file.thumbnail}', '${file.name}', '${fileDataBase64}', true)" title="View Thumbnail">
+                            `<button class="file-action-btn btn-info" onclick="modernFileManager.openThumbnailModal('${file.thumbnail}', '${cleanFileName}', '${fileDataBase64}', true)" title="View Thumbnail">
                                 <i class="fas fa-search-plus"></i>
                             </button>` : ''
                         }
-                        <button class="file-action-btn btn-danger" onclick="modernFileManager.deleteFile('${file.name}')">
+                        <button class="file-action-btn btn-danger" onclick="modernFileManager.deleteFile('${cleanFileName}')">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -511,55 +525,49 @@ class ModernFileManager {
         `;
     }
     
+    // Enhanced openThumbnailModal with better filename handling - integrating fixes
     openThumbnailModal(thumbnailSrc, fileName, fileData = null, isBase64 = false) {
-        console.log('🔍 DEBUG: ===== FILE MANAGER OPEN THUMBNAIL MODAL =====');
-        console.log('🔍 DEBUG: thumbnailSrc =', thumbnailSrc);
-        console.log('🔍 DEBUG: fileName =', fileName);
-        console.log('🔍 DEBUG: fileData =', fileData);
-        console.log('🔍 DEBUG: isBase64 =', isBase64);
-        console.log('🔍 DEBUG: typeof fileName =', typeof fileName);
-        console.log('🔍 DEBUG: fileName length =', fileName ? fileName.length : 'undefined');
+        console.log('📸 Opening thumbnail modal from file manager');
+        console.log('📸 Filename:', fileName);
+        console.log('📸 Is Base64:', isBase64);
         
         // Handle base64 encoded data
+        let parsedFileData = null;
+        
         if (isBase64 && typeof fileData === 'string') {
             try {
-                fileData = JSON.parse(atob(fileData));
-                console.log('🔍 DEBUG: Decoded base64 fileData =', fileData);
+                parsedFileData = JSON.parse(atob(fileData));
+                console.log('📸 Decoded base64 file data:', parsedFileData);
             } catch (e) {
-                console.warn('🔍 DEBUG: Failed to decode base64 file data:', e);
-                fileData = { name: fileName };
+                console.warn('📸 Failed to decode base64 file data:', e);
+                parsedFileData = { name: fileName };
             }
         } else if (typeof fileData === 'string') {
-            // Fallback for legacy string parsing
             try {
-                fileData = JSON.parse(fileData.replace(/&quot;/g, '"').replace(/&#39;/g, "'"));
-                console.log('🔍 DEBUG: Parsed string fileData =', fileData);
+                parsedFileData = JSON.parse(fileData.replace(/&quot;/g, '"').replace(/&#39;/g, "'"));
+                console.log('📸 Parsed string file data:', parsedFileData);
             } catch (e) {
-                console.warn('🔍 DEBUG: Failed to parse file data:', e);
-                fileData = { name: fileName };
+                console.warn('📸 Failed to parse file data:', e);
+                parsedFileData = { name: fileName };
             }
+        } else {
+            parsedFileData = fileData || { name: fileName };
         }
         
-        // Ensure fileData has required properties
-        if (!fileData) {
-            fileData = { name: fileName };
-            console.log('🔍 DEBUG: Created fallback fileData =', fileData);
+        // Ensure parsedFileData has the filename
+        if (!parsedFileData.name) {
+            parsedFileData.name = fileName;
         }
         
-        // Add size_mb if missing but size is available
-        if (!fileData.size_mb && fileData.size) {
-            fileData.size_mb = (fileData.size / (1024 * 1024)).toFixed(1);
-        }
-        
-        console.log('🔍 DEBUG: Final fileData =', fileData);
+        console.log('📸 Final file data for modal:', parsedFileData);
         
         // Ensure thumbnail modal is initialized
         if (!window.thumbnailModal) {
-            console.log('🔍 DEBUG: Initializing thumbnail modal...');
+            console.log('📸 Initializing thumbnail modal...');
             if (typeof ThumbnailModal !== 'undefined') {
                 window.thumbnailModal = new ThumbnailModal();
             } else {
-                console.error('🔍 DEBUG: ThumbnailModal class not available');
+                console.error('📸 ThumbnailModal class not available');
                 this.showAlert('Thumbnail viewer not available. Please refresh the page.', 'error');
                 return;
             }
@@ -567,14 +575,12 @@ class ModernFileManager {
         
         // Use the global thumbnail modal
         if (window.thumbnailModal) {
-            console.log('🔍 DEBUG: Calling thumbnailModal.show with:', { thumbnailSrc, fileName, fileData });
-            window.thumbnailModal.show(thumbnailSrc, fileName, fileData);
+            console.log('📸 Calling thumbnailModal.show');
+            window.thumbnailModal.show(thumbnailSrc, fileName, parsedFileData);
         } else {
-            console.error('🔍 DEBUG: Thumbnail modal system not available');
+            console.error('📸 Thumbnail modal system not available');
             this.showAlert('Thumbnail viewer not available. Please ensure the thumbnail modal scripts are loaded.', 'error');
         }
-        
-        console.log('🔍 DEBUG: ===== END FILE MANAGER OPEN THUMBNAIL MODAL =====');
     }
     
     createMetadataHtml(metadata) {
@@ -752,11 +758,20 @@ class ModernFileManager {
     }
     
     // File Actions
+    // FIXED selectAndPrint method - integrating the fixes
     async selectAndPrint(filename) {
-        if (typeof selectAndPrint === 'function') {
+        console.log('🖨️ ModernFileManager.selectAndPrint called with:', filename);
+        
+        // Call the global selectAndPrint function if available
+        if (typeof window.selectAndPrint === 'function') {
+            console.log('🖨️ Calling global selectAndPrint function');
+            window.selectAndPrint(filename);
+        } else if (typeof selectAndPrint === 'function') {
+            console.log('🖨️ Calling selectAndPrint function');
             selectAndPrint(filename);
         } else {
-            this.showAlert('Print function not available', 'warning');
+            console.error('🖨️ selectAndPrint function not available');
+            this.showAlert('Print function not available. Please ensure the main application is loaded.', 'error');
         }
     }
     

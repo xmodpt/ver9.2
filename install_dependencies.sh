@@ -248,56 +248,6 @@ install_communication_deps() {
     print_success "Communication dependencies installed"
 }
 
-# Setup UART for Pi Zero 2W
-setup_uart() {
-    if check_pi; then
-        print_status "Setting up UART for Raspberry Pi..."
-        
-        # Check if UART is already configured
-        if [ -f "/boot/config.txt" ]; then
-            if grep -q "enable_uart=1" /boot/config.txt; then
-                print_status "UART already enabled in config.txt"
-            else
-                print_status "Enabling UART in /boot/config.txt..."
-                echo "enable_uart=1" | sudo tee -a /boot/config.txt
-                print_success "UART enabled"
-            fi
-            
-            # Disable Bluetooth UART if not already done
-            if ! grep -q "dtoverlay=disable-bt" /boot/config.txt; then
-                echo "dtoverlay=disable-bt" | sudo tee -a /boot/config.txt
-                print_success "Bluetooth UART disabled"
-            fi
-            
-            # Set UART clock for stability
-            if ! grep -q "uart_clock=" /boot/config.txt; then
-                echo "uart_clock=48000000" | sudo tee -a /boot/config.txt
-                print_success "UART clock configured"
-            fi
-            
-            # Remove console from serial0 if present
-            if grep -q "console=serial0" /boot/config.txt; then
-                sudo sed -i 's/console=serial0,115200//' /boot/config.txt
-                print_success "Console removed from serial0"
-            fi
-        fi
-        
-        # Remove console from cmdline.txt if it exists
-        if [ -f "/boot/cmdline.txt" ]; then
-            if grep -q "console=serial0" /boot/cmdline.txt; then
-                sudo sed -i 's/console=serial0,115200//' /boot/cmdline.txt
-                print_success "Console removed from cmdline.txt"
-            fi
-        fi
-        
-        print_warning "⚠️  UART configuration requires reboot to take effect!"
-        print_status "Run 'sudo reboot' after installation to enable UART"
-        
-    else
-        print_warning "Not on Raspberry Pi - skipping UART setup"
-    fi
-}
-
 # Create virtual environment and install Python packages
 install_python_packages() {
     print_status "Setting up Python virtual environment..."
@@ -620,9 +570,6 @@ main() {
     
     # Install communication dependencies
     install_communication_deps
-    
-    # Setup UART for Pi Zero 2W
-    setup_uart
     
     # Install Python packages
     install_python_packages

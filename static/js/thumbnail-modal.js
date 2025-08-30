@@ -1,21 +1,18 @@
 /**
- * Thumbnail Modal System
+ * Thumbnail Modal System - FIXED PRINT FUNCTIONALITY
  * Handles thumbnail popup modals with zoom functionality
  */
 
 class ThumbnailModal {
     constructor() {
-        console.log('🔍 DEBUG: ThumbnailModal constructor called');
+        console.log('📸 ThumbnailModal constructor called');
         this.modal = null;
         this.currentImageSrc = null;
         this.currentFileName = null;
+        this.currentFileData = null; // Store complete file data
         this.isZoomed = false;
         
-        console.log('🔍 DEBUG: Constructor - this.currentFileName =', this.currentFileName);
-        
         this.init();
-        
-        console.log('🔍 DEBUG: Constructor - after init, this.currentFileName =', this.currentFileName);
     }
     
     init() {
@@ -116,26 +113,36 @@ class ThumbnailModal {
     }
     
     show(thumbnailSrc, fileName, fileData = null) {
-        console.log('🔍 DEBUG: ===== THUMBNAIL MODAL SHOW METHOD =====');
-        console.log('🔍 DEBUG: thumbnailSrc =', thumbnailSrc);
-        console.log('🔍 DEBUG: fileName =', fileName);
-        console.log('🔍 DEBUG: fileData =', fileData);
-        console.log('🔍 DEBUG: typeof fileName =', typeof fileName);
-        console.log('🔍 DEBUG: fileName length =', fileName ? fileName.length : 'undefined');
+        console.log('📸 Showing thumbnail modal for:', fileName);
         
+        // Store all the data properly
         this.currentImageSrc = thumbnailSrc;
         this.currentFileName = fileName;
-        this.isZoomed = false;
+        this.currentFileData = fileData;
         
-        console.log('🔍 DEBUG: Set currentFileName to:', this.currentFileName);
-        console.log('🔍 DEBUG: this.currentFileName type =', typeof this.currentFileName);
-        console.log('🔍 DEBUG: this.currentFileName value =', this.currentFileName);
+        // Handle base64 encoded file data if needed
+        if (typeof fileData === 'string' && fileData.length > 0) {
+            try {
+                // Check if it's base64 encoded
+                if (fileData.match(/^[A-Za-z0-9+/]*={0,2}$/)) {
+                    this.currentFileData = JSON.parse(atob(fileData));
+                } else {
+                    this.currentFileData = JSON.parse(fileData);
+                }
+            } catch (e) {
+                console.warn('Failed to parse file data, using basic info:', e);
+                this.currentFileData = { name: fileName };
+            }
+        } else if (!fileData) {
+            this.currentFileData = { name: fileName };
+        }
+        
+        console.log('📸 Current file data set to:', this.currentFileData);
         
         // Update modal title
         const title = document.getElementById('thumbnailModalTitle');
         if (title) {
             title.textContent = fileName || 'File Thumbnail';
-            console.log('🔍 DEBUG: Updated modal title to:', title.textContent);
         }
         
         // Show loading state
@@ -143,18 +150,15 @@ class ThumbnailModal {
         
         // Show modal
         this.modal.classList.add('active');
-        console.log('🔍 DEBUG: Modal marked as active');
         
         // Load the image
-        this.loadImage(thumbnailSrc, fileData);
+        this.loadImage(thumbnailSrc, this.currentFileData);
         
         // Focus management
         setTimeout(() => {
             const closeBtn = this.modal.querySelector('.thumbnail-modal-close');
             if (closeBtn) closeBtn.focus();
         }, 100);
-        
-        console.log('🔍 DEBUG: ===== END SHOW METHOD =====');
     }
     
     showLoading() {
@@ -329,44 +333,60 @@ class ThumbnailModal {
     }
     
     printFile() {
-        console.log('🔍 DEBUG: ===== PRINT FILE METHOD CALLED =====');
-        console.log('🔍 DEBUG: this =', this);
-        console.log('🔍 DEBUG: this.currentFileName =', this.currentFileName);
-        console.log('🔍 DEBUG: this.currentImageSrc =', this.currentImageSrc);
-        console.log('🔍 DEBUG: typeof this.currentFileName =', typeof this.currentFileName);
-        console.log('🔍 DEBUG: this.currentFileName === null =', this.currentFileName === null);
-        console.log('🔍 DEBUG: this.currentFileName === undefined =', this.currentFileName === undefined);
-        console.log('🔍 DEBUG: this.currentFileName === "" =', this.currentFileName === "");
+        console.log('🖨️ PRINT FILE CALLED');
+        console.log('🖨️ Current filename:', this.currentFileName);
+        console.log('🖨️ Current file data:', this.currentFileData);
         
-        if (!this.currentFileName) {
-            console.error('🔍 DEBUG: No filename available for printing');
-            console.error('🔍 DEBUG: this.currentFileName is falsy');
+        // Get the actual filename to print
+        let filenameToPrint = null;
+        
+        // Try multiple sources for the filename
+        if (this.currentFileData && this.currentFileData.name) {
+            filenameToPrint = this.currentFileData.name;
+            console.log('🖨️ Using filename from fileData.name:', filenameToPrint);
+        } else if (this.currentFileName) {
+            filenameToPrint = this.currentFileName;
+            console.log('🖨️ Using filename from currentFileName:', filenameToPrint);
+        }
+        
+        if (!filenameToPrint) {
+            console.error('🖨️ No filename available for printing');
             if (typeof showAlert === 'function') {
-                showAlert('No file selected for printing', 'warning');
+                showAlert('No file selected for printing', 'error');
             }
             return;
         }
         
+        console.log('🖨️ Final filename to print:', filenameToPrint);
+        
         // Close modal first
         this.close();
         
-        console.log('🔍 DEBUG: Calling selectAndPrint with filename:', this.currentFileName);
-        
-        // Call the global print function
-        if (typeof selectAndPrint === 'function') {
-            console.log('🔍 DEBUG: selectAndPrint function found, calling it');
-            selectAndPrint(this.currentFileName);
-        } else if (typeof window.modernFileManager?.selectAndPrint === 'function') {
-            console.log('🔍 DEBUG: modernFileManager.selectAndPrint function found, calling it');
-            window.modernFileManager.selectAndPrint(this.currentFileName);
-        } else {
-            console.error('🔍 DEBUG: Print function not available');
+        // Call the global print function with proper error handling
+        try {
+            if (typeof selectAndPrint === 'function') {
+                console.log('🖨️ Calling selectAndPrint function');
+                selectAndPrint(filenameToPrint);
+            } else if (typeof window.selectAndPrint === 'function') {
+                console.log('🖨️ Calling window.selectAndPrint function');
+                window.selectAndPrint(filenameToPrint);
+            } else if (window.modernFileManager && typeof window.modernFileManager.selectAndPrint === 'function') {
+                console.log('🖨️ Calling modernFileManager.selectAndPrint function');
+                window.modernFileManager.selectAndPrint(filenameToPrint);
+            } else {
+                console.error('🖨️ No print function available');
+                if (typeof showAlert === 'function') {
+                    showAlert('Print function not available', 'error');
+                } else {
+                    alert('Print function not available');
+                }
+            }
+        } catch (error) {
+            console.error('🖨️ Error calling print function:', error);
             if (typeof showAlert === 'function') {
-                showAlert('Print function not available', 'warning');
+                showAlert(`Print error: ${error.message}`, 'error');
             }
         }
-        
-        console.log('🔍 DEBUG: ===== END PRINT FILE METHOD =====');
     }
     
     close() {
@@ -375,6 +395,7 @@ class ThumbnailModal {
         this.modal.classList.remove('active');
         this.currentImageSrc = null;
         this.currentFileName = null;
+        this.currentFileData = null;
         this.isZoomed = false;
         
         // Clear modal content after animation
@@ -405,98 +426,33 @@ class ThumbnailModal {
         
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
-
-    // Test method to manually set filename for debugging
-    testSetFilename(filename) {
-        console.log('🔍 DEBUG: testSetFilename called with:', filename);
-        this.currentFileName = filename;
-        console.log('🔍 DEBUG: this.currentFileName now set to:', this.currentFileName);
-    }
-    
-    // Test method to check current state
-    debugCurrentState() {
-        console.log('🔍 DEBUG: ===== CURRENT THUMBNAIL MODAL STATE =====');
-        console.log('🔍 DEBUG: this.currentFileName =', this.currentFileName);
-        console.log('🔍 DEBUG: this.currentImageSrc =', this.currentImageSrc);
-        console.log('🔍 DEBUG: this.isZoomed =', this.isZoomed);
-        console.log('🔍 DEBUG: this.modal =', this.modal);
-        console.log('🔍 DEBUG: ===== END STATE DEBUG =====');
-    }
 }
 
 // Initialize the thumbnail modal system
 let thumbnailModal = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔍 DEBUG: DOMContentLoaded - Initializing thumbnail modal');
+    console.log('📸 Initializing thumbnail modal');
     thumbnailModal = new ThumbnailModal();
     
     // Make it globally available
     window.thumbnailModal = thumbnailModal;
-    
-    console.log('🔍 DEBUG: Thumbnail modal initialized:', thumbnailModal);
-    console.log('🔍 DEBUG: thumbnailModal.currentFileName =', thumbnailModal.currentFileName);
-    
-    // Test the show method exists
-    console.log('🔍 DEBUG: typeof thumbnailModal.show =', typeof thumbnailModal.show);
     
     console.log('📸 Thumbnail modal system loaded');
 });
 
 // Helper function to open thumbnail modal from file manager
 window.openThumbnailModal = function(thumbnailSrc, fileName, fileData = null) {
-    console.log('🔍 DEBUG: ===== OPEN THUMBNAIL MODAL HELPER =====');
-    console.log('🔍 DEBUG: thumbnailSrc =', thumbnailSrc);
-    console.log('🔍 DEBUG: fileName =', fileName);
-    console.log('🔍 DEBUG: fileData =', fileData);
-    console.log('🔍 DEBUG: typeof fileName =', typeof fileName);
-    console.log('🔍 DEBUG: fileName length =', fileName ? fileName.length : 'undefined');
+    console.log('📸 Opening thumbnail modal:', fileName);
     
     if (thumbnailModal) {
-        console.log('🔍 DEBUG: thumbnailModal exists, calling show()');
         thumbnailModal.show(thumbnailSrc, fileName, fileData);
     } else {
-        console.error('🔍 DEBUG: thumbnailModal not initialized');
+        console.error('📸 thumbnailModal not initialized');
     }
-    
-    console.log('🔍 DEBUG: ===== END OPEN THUMBNAIL MODAL HELPER =====');
 };
 
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = ThumbnailModal;
 }
-
-// Global test function for debugging
-window.testThumbnailModal = function() {
-    console.log('🔍 DEBUG: ===== GLOBAL THUMBNAIL MODAL TEST =====');
-    
-    if (window.thumbnailModal) {
-        console.log('🔍 DEBUG: thumbnailModal exists');
-        window.thumbnailModal.debugCurrentState();
-        
-        // Test setting a filename
-        console.log('🔍 DEBUG: Testing filename setting...');
-        window.thumbnailModal.testSetFilename('test_file.ctb');
-        window.thumbnailModal.debugCurrentState();
-        
-        // Test print function
-        console.log('🔍 DEBUG: Testing print function...');
-        window.thumbnailModal.printFile();
-        
-    } else {
-        console.error('🔍 DEBUG: thumbnailModal does not exist');
-        console.log('🔍 DEBUG: Available global objects:', Object.keys(window).filter(key => key.includes('thumbnail')));
-    }
-    
-    console.log('🔍 DEBUG: ===== END GLOBAL TEST =====');
-};
-
-// Also make the test methods globally accessible
-window.debugThumbnailModal = function() {
-    if (window.thumbnailModal) {
-        window.thumbnailModal.debugCurrentState();
-    } else {
-        console.error('thumbnailModal not available');
-    }
-};
