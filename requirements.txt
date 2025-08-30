@@ -1,0 +1,24 @@
+# Resin Printer Control Application - Requirements
+# Core dependencies for the main application
+
+# Web Framework
+Flask>=2.0.0
+Werkzeug>=2.0.0
+
+# Serial Communication
+pyserial>=3.5
+
+# Image Processing
+Pillow>=8.0.0
+
+# System Monitoring (for pi_monitor_addon)
+psutil>=5.8.0
+
+# Raspberry Pi GPIO Control (for relay_controller_addon)
+RPi.GPIO>=0.7.0
+
+# Optional: Development and testing packages
+# pytest>=6.0.0
+# black>=21.0.0
+# flake8>=3.8.0
+# mypy>=0.900 

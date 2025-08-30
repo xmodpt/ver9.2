@@ -1,0 +1,9 @@
+{
+  "name": "Pi Monitor Addon",
+  "app_name": "pi_monitor",
+  "version": "1.0.1",
+  "description": "Real-time Raspberry Pi system monitoring with customizable toolbar icons and dashboard cards",
+  "author": "Pi Monitor Team",
+  "type": "card",
+  "dependencies": ["psutil"]
+}

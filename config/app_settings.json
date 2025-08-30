@@ -1,0 +1,12 @@
+{
+  "enableWebcam": true,
+  "autoConnect": false,
+  "enableNotifications": true,
+  "autoCleanup": false,
+  "updateInterval": "3",
+  "maxConsoleLines": "50",
+  "maxFiles": "50",
+  "maxFileAge": "30",
+  "allowedExtensions": ".ctb,.cbddlp,.pwmx,.pwmo,.pwms,.pws,.pw0,.pwx",
+  "theme": "dark"
+}

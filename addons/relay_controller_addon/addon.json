@@ -1,0 +1,9 @@
+{
+  "name": "Relay Controller Addon",
+  "app_name": "relay_controller",
+  "version": "1.0.0",
+  "description": "Control GPIO relays on Raspberry Pi with customizable settings and toolbar interface",
+  "author": "Self-Contained System",
+  "type": "card",
+  "dependencies": ["RPi.GPIO"]
+}

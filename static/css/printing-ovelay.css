@@ -1,0 +1,554 @@
+/* Printing Overlay Styles with Camera Stream Integration */
+
+/* Main Printing Overlay */
+.printing-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #2a2a2a;
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+}
+
+.printing-overlay.active {
+    display: flex;
+}
+
+/* Close Button */
+.close-overlay {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    color: #bbb;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 4px;
+    z-index: 1001;
+    transition: all 0.2s;
+}
+
+.close-overlay:hover {
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+}
+
+/* Header Section */
+.printing-header {
+    padding: 16px 20px;
+    background: #3d3d3d;
+    border-bottom: 1px solid #4a4a4a;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.printing-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.printing-subtitle {
+    color: #bbb;
+    font-size: 0.8rem;
+}
+
+/* Camera Stream Overlay */
+.overlay-camera-container {
+    position: absolute;
+    top: 100px;
+    left: 20px;
+    width: 300px;
+    height: 225px;
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 8px;
+    border: 2px solid #2196f3;
+    overflow: hidden;
+    z-index: 1001;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.overlay-camera-container.minimized {
+    height: 40px;
+}
+
+.overlay-camera-container.hidden {
+    display: none;
+}
+
+.overlay-camera-header {
+    background: #2196f3;
+    color: white;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-height: 40px;
+}
+
+.overlay-camera-toggle {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 3px;
+    transition: background 0.2s;
+    font-size: 0.9rem;
+}
+
+.overlay-camera-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.overlay-camera-stream {
+    width: 100%;
+    height: calc(100% - 40px);
+    position: relative;
+    overflow: hidden;
+    background: #000;
+}
+
+.overlay-camera-stream img,
+.overlay-camera-stream video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.overlay-camera-container.minimized .overlay-camera-stream {
+    display: none;
+}
+
+/* Camera Error State */
+.overlay-camera-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f44336;
+    font-size: 0.8rem;
+    text-align: center;
+    padding: 20px;
+    height: 100%;
+}
+
+.overlay-camera-error i {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* Camera Status Indicator */
+.camera-status-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #4caf50;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    z-index: 1002;
+}
+
+.camera-status-indicator.offline {
+    color: #f44336;
+}
+
+/* Camera Controls Overlay */
+.camera-overlay-controls {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.overlay-camera-container:hover .camera-overlay-controls {
+    opacity: 1;
+}
+
+.camera-overlay-btn {
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    color: white;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.camera-overlay-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.05);
+}
+
+/* Main Content Area */
+.printing-main {
+    flex: 1;
+    padding: 32px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Print Icon */
+.printing-icon {
+    width: 100px;
+    height: 100px;
+    background: #4a4a4a;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin-bottom: 24px;
+    border: 2px solid #555;
+    color: #2196f3;
+}
+
+/* Statistics Grid */
+.printing-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 24px;
+}
+
+.printing-stat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid #555;
+}
+
+.printing-stat-icon {
+    font-size: 1.2rem;
+    color: #2196f3;
+    min-width: 24px;
+}
+
+.printing-stat-content {
+    flex: 1;
+}
+
+.printing-stat-value {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.9rem;
+    line-height: 1.2;
+}
+
+.printing-stat-label {
+    font-size: 0.7rem;
+    color: #bbb;
+    margin-top: 2px;
+}
+
+/* Progress Visualization */
+.printing-progress-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+}
+
+.printing-progress-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.printing-progress-ring circle {
+    fill: none;
+    stroke-width: 4;
+}
+
+.printing-progress-ring .background {
+    stroke: #333;
+}
+
+.printing-progress-ring .progress {
+    stroke: #2196f3;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s;
+}
+
+/* Control Buttons */
+.printing-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #3d3d3d;
+    border-top: 1px solid #4a4a4a;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.printing-btn {
+    background: #4a4a4a;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 12px 8px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-height: 60px;
+    border: 2px solid transparent;
+}
+
+.printing-btn:hover {
+    background: #525252;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.printing-btn:active {
+    transform: translateY(0);
+}
+
+.printing-btn-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.printing-btn-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Button Color Variants */
+.printing-btn.orange {
+    background: #ff9800;
+    border-color: #f57c00;
+}
+
+.printing-btn.orange:hover {
+    background: #f57c00;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+}
+
+.printing-btn.purple {
+    background: #9c27b0;
+    border-color: #7b1fa2;
+}
+
+.printing-btn.purple:hover {
+    background: #7b1fa2;
+    box-shadow: 0 4px 12px rgba(156, 39, 176, 0.4);
+}
+
+.printing-btn.green {
+    background: #4caf50;
+    border-color: #388e3c;
+}
+
+.printing-btn.green:hover {
+    background: #388e3c;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.printing-btn.blue {
+    background: #2196f3;
+    border-color: #1976d2;
+}
+
+.printing-btn.blue:hover {
+    background: #1976d2;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+}
+
+.printing-btn.red {
+    background: #f44336;
+    border-color: #d32f2f;
+}
+
+.printing-btn.red:hover {
+    background: #d32f2f;
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+}
+
+/* Camera Toggle Button Special Styling */
+.printing-btn.camera-btn {
+    position: relative;
+}
+
+.printing-btn.camera-btn.active {
+    background: #4caf50;
+    border-color: #388e3c;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.printing-btn.camera-btn.active::before {
+    content: "●";
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    color: #4caf50;
+    font-size: 0.8rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .overlay-camera-container {
+        width: 250px;
+        height: 188px;
+        top: 80px;
+        left: 10px;
+    }
+    
+    .printing-controls {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 12px;
+    }
+    
+    .printing-btn {
+        min-height: 50px;
+        padding: 8px 6px;
+    }
+    
+    .printing-btn-icon {
+        font-size: 1.2rem;
+    }
+    
+    .printing-btn-label {
+        font-size: 0.65rem;
+    }
+    
+    .printing-stats {
+        grid-template-columns: 1fr;
+        max-width: 300px;
+    }
+    
+    .printing-main {
+        padding: 20px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .overlay-camera-container {
+        width: 200px;
+        height: 150px;
+    }
+    
+    .overlay-camera-header {
+        font-size: 0.7rem;
+        padding: 6px 10px;
+    }
+    
+    .printing-controls {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .printing-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+}
+
+/* Animation Classes */
+.camera-stream-connecting {
+    animation: streamPulse 1.5s infinite;
+}
+
+@keyframes streamPulse {
+    0%, 100% {
+        border-color: #2196f3;
+    }
+    50% {
+        border-color: #64b5f6;
+    }
+}
+
+.camera-stream-error {
+    border-color: #f44336;
+    animation: streamError 0.5s;
+}
+
+@keyframes streamError {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .overlay-camera-container {
+        border-width: 3px;
+    }
+    
+    .printing-btn {
+        border-width: 3px;
+    }
+    
+    .overlay-camera-header {
+        background: #000;
+        color: #fff;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .overlay-camera-container,
+    .printing-btn,
+    .overlay-camera-toggle,
+    .camera-overlay-btn {
+        transition: none;
+    }
+    
+    .printing-btn.camera-btn.active::before {
+        animation: none;
+    }
+    
+    .camera-stream-connecting {
+        animation: none;
+    }
+}

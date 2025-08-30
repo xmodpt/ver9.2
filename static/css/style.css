@@ -1,0 +1,1658 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    line-height: 1.6;
+}
+
+/* Toolbar Styles */
+.toolbar {
+    background: #3d3d3d;
+    border-bottom: 1px solid #4a4a4a;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-wrap: wrap;
+    transition: all 0.3s ease;
+}
+
+.toolbar-logo {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    transition: font-size 0.3s ease;
+}
+
+.toolbar-spacer {
+    flex: 1;
+}
+
+.toolbar-items {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    transition: all 0.3s ease;
+}
+
+.toolbar-btn {
+    background: none;
+    border: 1px solid #555;
+    color: #e0e0e0;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 32px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.toolbar-btn:hover {
+    background: #4a4a4a;
+    border-color: #666;
+}
+
+.toolbar-addon-items {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    transition: all 0.3s ease;
+}
+
+.addon-manager-btn {
+    background: #2196f3;
+    border: 1px solid #1976d2;
+}
+
+.addon-manager-btn:hover {
+    background: #1976d2;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px;
+    gap: 16px;
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+.card {
+    background: #3d3d3d;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #4a4a4a;
+}
+
+.card-header {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #4a4a4a;
+    justify-content: space-between;
+}
+
+.card-header .btn-sm {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    min-height: 24px;
+    margin-left: auto;
+}
+
+.card-header .btn-sm:hover {
+    background: #4a4a4a;
+    border-color: #666;
+    transform: scale(1.05);
+}
+
+/* Addon Cards Container */
+.addon-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.addon-card {
+    background: #3d3d3d;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid #4a4a4a;
+    position: relative;
+}
+
+.addon-card::before {
+    content: "🧩";
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 0.8rem;
+    opacity: 0.5;
+}
+
+.addon-card-header {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Status Section */
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.status-item {
+    background: #4a4a4a;
+    border-radius: 6px;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #555;
+}
+
+.status-label {
+    font-size: 0.7rem;
+    color: #bbb;
+    margin-bottom: 4px;
+}
+
+.status-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.status-connected {
+    color: #4caf50;
+}
+
+.status-disconnected {
+    color: #f44336;
+}
+
+.status-printing {
+    color: #2196f3;
+}
+
+/* Main Grid Layout */
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Webcam Section */
+.webcam-container {
+    background: #4a4a4a;
+    border-radius: 6px;
+    aspect-ratio: 4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 1.2rem;
+    border: 1px solid #555;
+}
+
+/* Controls Section */
+.controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.btn {
+    background: #2196f3;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin: 2px;
+    min-height: 32px;
+}
+
+.btn:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+}
+
+.btn-success {
+    background: #4caf50;
+}
+
+.btn-danger {
+    background: #f44336;
+}
+
+.btn-warning {
+    background: #ff9800;
+}
+
+.btn-group {
+    display: flex;
+    gap: 8px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+}
+
+.control-section {
+    margin-bottom: 16px;
+}
+
+.control-section h4 {
+    font-size: 0.75rem;
+    color: #bbb;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.z-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+
+/* Files Section */
+.upload-area {
+    border: 2px dashed #666;
+    border-radius: 6px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    margin: 16px 0;
+    background: #4a4a4a;
+    transition: border-color 0.2s;
+}
+
+.upload-area:hover {
+    border-color: #2196f3;
+}
+
+.upload-area.dragover {
+    border-color: #2196f3;
+    background: #525252;
+}
+
+.upload-icon {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.upload-text {
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+.upload-hint {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* File items with much smaller gap and compact layout */
+.file-item {
+    background: #4a4a4a;
+    border-radius: 6px;
+    padding: 8px;
+    margin: 6px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    border: 1px solid #555;
+    transition: all 0.3s ease;
+}
+
+.file-item:hover {
+    border-color: #2196f3;
+    background: #525252;
+}
+
+/* Much smaller file thumbnails - 25px (75% reduction from original 80px) */
+.file-thumbnail {
+    width: 25px;
+    height: 25px;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    background: #525252;
+    border: 1px solid #666;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-thumbnail:hover {
+    border-color: #2196f3;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.file-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.thumbnail-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #888;
+    font-size: 0.5rem;
+    text-align: center;
+    padding: 1px;
+    background: #3a3a3a;
+    border: 1px dashed #666;
+    border-radius: 3px;
+    width: 100%;
+}
+
+.thumbnail-placeholder i {
+    font-size: 0.7rem;
+    margin-bottom: 1px;
+    color: #666;
+}
+
+.thumbnail-placeholder span {
+    font-size: 0.4rem;
+    line-height: 1;
+}
+
+/* Make the modern file grid more compact with smaller fixed height */
+.modern-file-grid {
+    max-height: 280px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+    margin-top: 16px;
+}
+
+/* Custom scrollbar styling for the file grid */
+.modern-file-grid::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modern-file-grid::-webkit-scrollbar-track {
+    background: #4a4a4a;
+    border-radius: 4px;
+}
+
+.modern-file-grid::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 4px;
+}
+
+.modern-file-grid::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+.file-info {
+    flex: 1;
+    min-width: 0;
+    padding-top: 2px;
+}
+
+.file-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 2px;
+    word-break: break-word;
+    line-height: 1.2;
+}
+
+.file-meta {
+    font-size: 0.7rem;
+    color: #888;
+    line-height: 1.2;
+}
+
+.file-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.file-btn {
+    padding: 6px 12px;
+    font-size: 0.7rem;
+    min-height: 28px;
+    border-radius: 4px;
+}
+
+/* Console Section */
+.console-area {
+    background: #4a4a4a;
+    border-radius: 6px;
+    height: 200px;
+    padding: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    color: #ccc;
+    overflow-y: auto;
+    border: 1px solid #555;
+}
+
+.console-line {
+    margin: 2px 0;
+    opacity: 0.8;
+}
+
+.console-line.info {
+    color: #2196f3;
+}
+
+.console-line.success {
+    color: #4caf50;
+}
+
+.console-line.error {
+    color: #f44336;
+}
+
+.console-line.warning {
+    color: #ff9800;
+}
+
+/* USB Status */
+.usb-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.usb-item {
+    background: #4a4a4a;
+    border-radius: 6px;
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #555;
+}
+
+.usb-label {
+    font-size: 0.6rem;
+    color: #bbb;
+    margin-bottom: 4px;
+}
+
+.usb-value {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+/* Alert System */
+.alert {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin: 8px 0;
+    font-size: 0.75rem;
+}
+
+.alert-success {
+    background: #1b5e20;
+    border: 1px solid #4caf50;
+    color: #4caf50;
+}
+
+.alert-error {
+    background: #5d2019;
+    border: 1px solid #f44336;
+    color: #f44336;
+}
+
+.alert-warning {
+    background: #663d00;
+    border: 1px solid #ff9800;
+    color: #ff9800;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+    font-size: 0.8rem;
+}
+
+/* Progress */
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #555;
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 8px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #4caf50;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* Storage Stats */
+.storage-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.storage-stat {
+    background: #525252;
+    padding: 8px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.storage-stat-value {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.storage-stat-label {
+    font-size: 0.6rem;
+    color: #bbb;
+    margin-top: 2px;
+}
+
+/* Printing Overlay */
+.printing-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #2a2a2a;
+    z-index: 1000;
+    display: none;
+}
+
+.printing-overlay.active {
+    display: block;
+}
+
+.printing-header {
+    padding: 16px;
+    background: #3d3d3d;
+    border-bottom: 1px solid #4a4a4a;
+}
+
+.printing-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.printing-subtitle {
+    color: #bbb;
+    font-size: 0.8rem;
+}
+
+.printing-main {
+    padding: 32px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.printing-icon {
+    width: 100px;
+    height: 100px;
+    background: #4a4a4a;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin-bottom: 24px;
+    border: 2px solid #555;
+}
+
+.printing-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 24px;
+}
+
+.printing-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+}
+
+.printing-stat-icon {
+    font-size: 1rem;
+}
+
+.printing-stat-value {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.85rem;
+}
+
+.printing-stat-label {
+    font-size: 0.7rem;
+    color: #bbb;
+}
+
+.printing-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #3d3d3d;
+    border-top: 1px solid #4a4a4a;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.printing-btn {
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 12px 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-height: 60px;
+}
+
+.printing-btn:hover {
+    background: #4a4a4a;
+}
+
+.printing-btn-icon {
+    font-size: 1.5rem;
+}
+
+.printing-btn-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.printing-btn.orange {
+    background: #ff9800;
+}
+
+.printing-btn.purple {
+    background: #9c27b0;
+}
+
+.printing-btn.green {
+    background: #4caf50;
+}
+
+.printing-btn.blue {
+    background: #2196f3;
+}
+
+.close-overlay {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: #bbb;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.close-overlay:hover {
+    background: #4a4a4a;
+    color: #fff;
+}
+
+/* Addon Manager Modal */
+.addon-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.addon-modal.active {
+    display: flex;
+}
+
+.addon-modal-content {
+    background: #3d3d3d;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid #4a4a4a;
+}
+
+.addon-modal-header {
+    padding: 16px;
+    border-bottom: 1px solid #4a4a4a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.addon-modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.addon-modal-close {
+    background: none;
+    border: none;
+    color: #bbb;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.addon-modal-close:hover {
+    color: #fff;
+}
+
+.addon-modal-body {
+    padding: 16px;
+}
+
+.addon-list-item {
+    background: #4a4a4a;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid #555;
+}
+
+.addon-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.addon-item-name {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.addon-item-version {
+    font-size: 0.7rem;
+    color: #bbb;
+    background: #555;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.addon-item-description {
+    font-size: 0.8rem;
+    color: #ccc;
+    margin-bottom: 8px;
+}
+
+.addon-item-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 0.7rem;
+    color: #888;
+}
+
+.addon-item-type {
+    background: #2196f3;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.addon-item-status {
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.addon-item-status.enabled {
+    background: #4caf50;
+    color: white;
+}
+
+.addon-item-status.disabled {
+    background: #f44336;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .main-grid,
+    .controls-grid,
+    .status-grid,
+    .addon-cards-container {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 8px;
+    }
+
+    .toolbar {
+        flex-wrap: wrap;
+        min-height: auto;
+        padding: 12px 16px;
+        gap: 16px;
+    }
+
+    .toolbar-logo {
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .toolbar-spacer {
+        display: none;
+    }
+
+    .toolbar-items {
+        order: 1;
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 12px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .toolbar-btn {
+        font-size: 0.8rem;
+        padding: 8px 16px;
+        min-height: 36px;
+        flex: 1;
+        justify-content: center;
+        max-width: 120px;
+    }
+
+    .toolbar-addon-items {
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .addon-modal-content {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    /* Mobile responsive adjustments for much smaller thumbnails */
+    .file-thumbnail {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .thumbnail-placeholder i {
+        font-size: 0.6rem;
+        margin-bottom: 0;
+    }
+    
+    .thumbnail-placeholder span {
+        font-size: 0.35rem;
+    }
+    
+    .modern-file-grid {
+        max-height: 220px;
+    }
+    
+    .file-grid-item .file-thumbnail {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Camera Stream Overlay Styles */
+.overlay-camera-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 300px;
+    height: 225px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+    border: 2px solid #2196f3;
+    overflow: hidden;
+    z-index: 1001;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.overlay-camera-container.minimized {
+    height: 40px;
+}
+
+.overlay-camera-header {
+    background: #2196f3;
+    color: white;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.overlay-camera-toggle {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+
+.overlay-camera-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.overlay-camera-stream {
+    width: 100%;
+    height: calc(100% - 40px);
+    position: relative;
+    overflow: hidden;
+}
+
+.overlay-camera-stream img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.overlay-camera-container.minimized .overlay-camera-stream {
+    display: none;
+}
+
+/* Camera Button in Controls */
+.printing-btn.camera-btn {
+    background: #2196f3;
+}
+
+.printing-btn.camera-btn:hover {
+    background: #1976d2;
+    transform: translateY(-2px);
+}
+
+.printing-btn.camera-btn.active {
+    background: #4caf50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+/* Responsive Design for Camera Overlay */
+@media (max-width: 768px) {
+    .overlay-camera-container {
+        width: 250px;
+        height: 188px;
+        top: 10px;
+        left: 10px;
+    }
+    
+    .printing-controls {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    
+    .printing-btn {
+        min-height: 50px;
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .overlay-camera-container {
+        width: 200px;
+        height: 150px;
+    }
+    
+    .overlay-camera-header {
+        font-size: 0.7rem;
+        padding: 6px 10px;
+    }
+
+    .toolbar {
+        padding: 8px 12px;
+        gap: 12px;
+    }
+
+    .toolbar-logo {
+        font-size: 0.9rem;
+    }
+
+    .toolbar-items {
+        margin-top: 8px;
+        gap: 8px;
+    }
+
+    .toolbar-btn {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        min-height: 32px;
+        max-width: 100px;
+    }
+
+    .toolbar-addon-items {
+        gap: 6px;
+    }
+
+    /* Mobile responsive adjustments for much smaller thumbnails */
+    .file-thumbnail {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .thumbnail-placeholder i {
+        font-size: 0.5rem;
+    }
+    
+    .thumbnail-placeholder span {
+        font-size: 0.3rem;
+    }
+    
+    .file-item {
+        gap: 6px;
+        padding: 6px;
+    }
+    
+    .modern-file-grid {
+        max-height: 200px;
+    }
+}
+
+@media (max-width: 360px) {
+    .toolbar {
+        padding: 6px 8px;
+        gap: 8px;
+    }
+
+    .toolbar-logo {
+        font-size: 0.8rem;
+    }
+
+    .toolbar-items {
+        margin-top: 6px;
+        gap: 6px;
+    }
+
+    .toolbar-btn {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        min-height: 28px;
+        max-width: 80px;
+    }
+
+    .toolbar-addon-items {
+        gap: 4px;
+    }
+}
+
+/* Animation for camera toggle */
+.overlay-camera-container.show {
+    animation: cameraSlideIn 0.3s ease-out;
+}
+
+.overlay-camera-container.hide {
+    animation: cameraSlideOut 0.3s ease-in;
+}
+
+@keyframes cameraSlideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes cameraSlideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+
+/* Camera error state */
+.overlay-camera-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f44336;
+    font-size: 0.8rem;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Draggable camera (optional enhancement) */
+.overlay-camera-container.draggable {
+    cursor: move;
+}
+
+.overlay-camera-container.dragging {
+    z-index: 1002;
+    transform: rotate(2deg);
+}
+
+/* ============= THUMBNAIL STYLES ============= */
+/* File items with thumbnails */
+.file-item-with-thumbnail {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+}
+
+.file-item-with-thumbnail .file-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.file-item-with-thumbnail .file-actions {
+    flex-shrink: 0;
+}
+
+/* Thumbnail overlay for zoom effect */
+.thumbnail-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.file-thumbnail:hover .thumbnail-overlay {
+    opacity: 1;
+}
+
+/* Missing thumbnail placeholder */
+.file-thumbnail-missing {
+    background: #3a3a3a;
+    border: 2px dashed #666;
+}
+
+.file-thumbnail-missing:hover {
+    border-color: #ff9800;
+    background: #4a4a4a;
+}
+
+/* Thumbnail error state */
+.file-thumbnail.thumbnail-error {
+    border-color: #f44336;
+    background: #4a2c2c;
+}
+
+.file-thumbnail.thumbnail-error::after {
+    content: '⚠️';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+}
+
+/* Thumbnail indicator in file meta */
+.thumbnail-indicator {
+    color: #4caf50;
+    font-size: 0.8em;
+}
+
+/* Thumbnail Modal */
+.thumbnail-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.thumbnail-modal.active {
+    opacity: 1;
+}
+
+.thumbnail-modal-content {
+    background: #3d3d3d;
+    border-radius: 12px;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #4a4a4a;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.thumbnail-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #4a4a4a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #444;
+}
+
+.thumbnail-modal-header h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    word-break: break-all;
+}
+
+.thumbnail-modal-close {
+    background: none;
+    border: none;
+    color: #bbb;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.thumbnail-modal-close:hover {
+    background: #555;
+    color: #fff;
+}
+
+.thumbnail-modal-body {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    background: #2a2a2a;
+}
+
+.thumbnail-large {
+    max-width: 100%;
+    max-height: 60vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.thumbnail-modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #4a4a4a;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    background: #444;
+}
+
+/* Enhanced file actions with thumbnail button */
+.file-actions .btn {
+    font-size: 0.7rem;
+    padding: 6px 10px;
+    min-width: 70px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: center;
+}
+
+.file-actions .btn i {
+    font-size: 0.8rem;
+}
+
+/* Thumbnail management buttons in toolbar/controls */
+.thumbnail-controls {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+}
+
+.thumbnail-controls .btn {
+    font-size: 0.7rem;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Storage stats with thumbnail info */
+.storage-stats-extended {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+}
+
+/* Loading states for thumbnails */
+.file-thumbnail.loading {
+    background: linear-gradient(90deg, #4a4a4a 25%, #525252 50%, #4a4a4a 75%);
+    background-size: 200% 100%;
+    animation: thumbnail-loading 1.5s infinite;
+}
+
+@keyframes thumbnail-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Compact thumbnail view option */
+.file-list-compact .file-thumbnail {
+    width: 60px;
+    height: 60px;
+}
+
+.file-list-compact .file-item-with-thumbnail {
+    padding: 12px;
+    gap: 12px;
+}
+
+/* Grid view for files with thumbnails */
+.file-grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+}
+
+.file-grid-item {
+    background: #4a4a4a;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid #555;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.file-grid-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: #2196f3;
+}
+
+.file-grid-item .file-thumbnail {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 12px;
+}
+
+.file-grid-item .file-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 4px;
+    word-break: break-all;
+    line-height: 1.3;
+}
+
+.file-grid-item .file-meta {
+    font-size: 0.7rem;
+    color: #888;
+    margin-bottom: 12px;
+}
+
+.file-grid-item .file-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.file-grid-item .file-actions .btn {
+    font-size: 0.6rem;
+    padding: 4px 8px;
+    min-width: auto;
+}
+
+/* Thumbnail view toggle */
+.view-toggle {
+    display: flex;
+    gap: 4px;
+    margin: 8px 0;
+}
+
+.view-toggle .btn {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+}
+
+.view-toggle .btn.active {
+    background: #2196f3;
+    color: white;
+}
+
+/* Print queue with thumbnails */
+.print-queue-item .file-thumbnail {
+    width: 60px;
+    height: 60px;
+}
+
+/* Success/Error states for thumbnail operations */
+.thumbnail-success {
+    border-color: #4caf50 !important;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+}
+
+.thumbnail-error-state {
+    border-color: #f44336 !important;
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.3);
+}
+
+/* Thumbnail batch operations */
+.thumbnail-batch-controls {
+    background: #4a4a4a;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 12px 0;
+    border: 1px solid #555;
+}
+
+.thumbnail-batch-controls h4 {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+.thumbnail-batch-controls .btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.thumbnail-batch-controls .btn {
+    font-size: 0.7rem;
+    padding: 6px 12px;
+}
+
+/* Thumbnail statistics display */
+.thumbnail-stats {
+    background: #525252;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 12px 0;
+    border: 1px solid #666;
+}
+
+.thumbnail-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 12px;
+}
+
+.thumbnail-stat-item {
+    text-align: center;
+}
+
+.thumbnail-stat-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.thumbnail-stat-label {
+    font-size: 0.7rem;
+    color: #bbb;
+}
+
+/* Alert System Styles */
+.alert {
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: slideIn 0.3s ease-out;
+}
+
+.alert-info {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+    color: #1976d2;
+}
+
+.alert-success {
+    background-color: #e8f5e8;
+    border-color: #4caf50;
+    color: #2e7d32;
+}
+
+.alert-warning {
+    background-color: #fff3e0;
+    border-color: #ff9800;
+    color: #f57c00;
+}
+
+.alert-error {
+    background-color: #ffebee;
+    border-color: #f44336;
+    color: #d32f2f;
+}
+
+.alert-message {
+    flex: 1;
+    margin-right: 12px;
+}
+
+.alert-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.7;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.alert-close:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

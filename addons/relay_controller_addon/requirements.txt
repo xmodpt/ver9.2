@@ -1,0 +1,3 @@
+# Relay Controller Addon Dependencies
+# Required for Raspberry Pi GPIO control
+RPi.GPIO

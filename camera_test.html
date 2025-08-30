@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Stream Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #2a2a2a;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .camera-test {
+            background: #3d3d3d;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #4a4a4a;
+        }
+        .camera-stream {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.connecting {
+            background: #ff9800;
+            color: #000;
+        }
+        .status.connected {
+            background: #4caf50;
+            color: #fff;
+        }
+        .status.error {
+            background: #f44336;
+            color: #fff;
+        }
+        .btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>📹 External Camera Stream Test</h1>
+        
+        <div class="camera-test">
+            <h2>Camera Stream Test</h2>
+            <p>Testing connection to: <strong>http://192.168.1.107:8080/?action=stream</strong></p>
+            
+            <div id="cameraStatus" class="status connecting">
+                Connecting to camera stream...
+            </div>
+            
+            <img id="cameraStream" 
+                 src="http://192.168.1.107:8080/?action=stream" 
+                 alt="Live Camera Stream"
+                 class="camera-stream"
+                 onerror="handleCameraError()"
+                 onload="handleCameraLoad()">
+            
+            <div>
+                <button class="btn" onclick="refreshStream()">🔄 Refresh Stream</button>
+                <button class="btn" onclick="testConnection()">🔍 Test Connection</button>
+            </div>
+        </div>
+        
+        <div class="camera-test">
+            <h2>Connection Information</h2>
+            <p><strong>Stream URL:</strong> http://192.168.1.107:8080/?action=stream</p>
+            <p><strong>Expected Format:</strong> MJPEG Stream</p>
+            <p><strong>Status:</strong> <span id="connectionStatus">Testing...</span></p>
+        </div>
+    </div>
+
+    <script>
+        let retryCount = 0;
+        const MAX_RETRIES = 3;
+        
+        function handleCameraLoad() {
+            console.log('📹 Camera stream loaded successfully');
+            document.getElementById('cameraStatus').textContent = 'Live stream connected';
+            document.getElementById('cameraStatus').className = 'status connected';
+            document.getElementById('connectionStatus').textContent = 'Connected';
+            retryCount = 0;
+        }
+        
+        function handleCameraError() {
+            console.warn('📹 Camera stream error');
+            retryCount++;
+            
+            const statusElement = document.getElementById('cameraStatus');
+            const connectionElement = document.getElementById('connectionStatus');
+            
+            if (retryCount <= MAX_RETRIES) {
+                statusElement.textContent = `Connection failed (${retryCount}/${MAX_RETRIES}) - Retrying...`;
+                statusElement.className = 'status connecting';
+                connectionElement.textContent = 'Retrying...';
+                
+                // Retry after 2 seconds
+                setTimeout(() => {
+                    const img = document.getElementById('cameraStream');
+                    img.src = img.src + '&t=' + Date.now();
+                }, 2000);
+            } else {
+                statusElement.textContent = 'Camera unavailable - Check connection';
+                statusElement.className = 'status error';
+                connectionElement.textContent = 'Failed';
+            }
+        }
+        
+        function refreshStream() {
+            console.log('📹 Refreshing camera stream');
+            const img = document.getElementById('cameraStream');
+            img.src = img.src.split('&t=')[0] + '&t=' + Date.now();
+            
+            document.getElementById('cameraStatus').textContent = 'Refreshing stream...';
+            document.getElementById('cameraStatus').className = 'status connecting';
+        }
+        
+        async function testConnection() {
+            console.log('🔍 Testing camera connection...');
+            
+            try {
+                const response = await fetch('http://192.168.1.107:8080/?action=stream', {
+                    method: 'HEAD',
+                    mode: 'no-cors'
+                });
+                
+                document.getElementById('connectionStatus').textContent = 'Connection test completed';
+                console.log('✅ Connection test completed');
+                
+            } catch (error) {
+                console.error('❌ Connection test failed:', error);
+                document.getElementById('connectionStatus').textContent = 'Connection test failed';
+            }
+        }
+        
+        // Auto-refresh every 30 seconds to keep connection alive
+        setInterval(() => {
+            if (retryCount === 0) {
+                refreshStream();
+            }
+        }, 30000);
+    </script>
+</body>
+</html> 

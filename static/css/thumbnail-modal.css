@@ -1,0 +1,349 @@
+/* Thumbnail Modal Styles */
+.thumbnail-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 4000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.thumbnail-modal.active {
+    display: flex;
+    opacity: 1;
+}
+
+.thumbnail-modal-content {
+    background: #3d3d3d;
+    border-radius: 12px;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #4a4a4a;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    position: relative;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.thumbnail-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #4a4a4a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #444;
+    min-height: 60px;
+}
+
+.thumbnail-modal-title {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    word-break: break-all;
+    flex: 1;
+    padding-right: 16px;
+}
+
+.thumbnail-modal-close {
+    background: none;
+    border: none;
+    color: #bbb;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.thumbnail-modal-close:hover {
+    background: #555;
+    color: #fff;
+}
+
+.thumbnail-modal-body {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    max-height: 70vh;
+    background: #2a2a2a;
+    overflow: auto;
+}
+
+.thumbnail-large {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+}
+
+.thumbnail-large.zoomed {
+    cursor: zoom-out;
+    transform: scale(1.5);
+}
+
+.thumbnail-modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #4a4a4a;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    background: #444;
+    flex-wrap: wrap;
+}
+
+.thumbnail-modal-meta {
+    flex: 1;
+    color: #ccc;
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.thumbnail-meta-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+}
+
+.thumbnail-meta-label {
+    font-weight: 500;
+    color: #bbb;
+}
+
+.thumbnail-meta-value {
+    color: #fff;
+}
+
+/* Thumbnail Modal Actions */
+.thumbnail-modal-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.thumbnail-modal-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+}
+
+.thumbnail-modal-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.thumbnail-modal-btn.btn-primary {
+    background: #2196f3;
+    color: white;
+}
+
+.thumbnail-modal-btn.btn-primary:hover {
+    background: #1976d2;
+}
+
+.thumbnail-modal-btn.btn-secondary {
+    background: #666;
+    color: white;
+}
+
+.thumbnail-modal-btn.btn-secondary:hover {
+    background: #777;
+}
+
+.thumbnail-modal-btn.btn-success {
+    background: #4caf50;
+    color: white;
+}
+
+.thumbnail-modal-btn.btn-success:hover {
+    background: #45a049;
+}
+
+/* Loading State */
+.thumbnail-modal-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #ccc;
+}
+
+.thumbnail-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #555;
+    border-top: 3px solid #2196f3;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.thumbnail-modal-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #f44336;
+    text-align: center;
+}
+
+.thumbnail-error-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.thumbnail-error-text {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.thumbnail-error-hint {
+    font-size: 0.9rem;
+    color: #999;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .thumbnail-modal {
+        padding: 10px;
+    }
+    
+    .thumbnail-modal-content {
+        margin: 10px;
+        max-width: calc(100vw - 20px);
+        max-height: calc(100vh - 20px);
+    }
+    
+    .thumbnail-modal-header {
+        padding: 12px 16px;
+    }
+    
+    .thumbnail-modal-title {
+        font-size: 1rem;
+    }
+    
+    .thumbnail-modal-body {
+        padding: 16px;
+        max-height: 60vh;
+    }
+    
+    .thumbnail-modal-footer {
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px 16px;
+    }
+    
+    .thumbnail-modal-meta {
+        order: 1;
+        margin-bottom: 8px;
+    }
+    
+    .thumbnail-modal-actions {
+        order: 2;
+        justify-content: stretch;
+    }
+    
+    .thumbnail-modal-btn {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .thumbnail-modal-actions {
+        flex-direction: column;
+    }
+    
+    .thumbnail-modal-btn {
+        width: 100%;
+    }
+    
+    .thumbnail-large.zoomed {
+        transform: scale(1.2);
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .thumbnail-modal-content {
+        border-width: 3px;
+    }
+    
+    .thumbnail-modal-btn {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .thumbnail-modal,
+    .thumbnail-modal-content,
+    .thumbnail-large,
+    .thumbnail-modal-btn {
+        transition: none;
+        animation: none;
+    }
+    
+    .thumbnail-loading-spinner {
+        animation: none;
+        border-top-color: #2196f3;
+    }
+}
+
+/* Keyboard Navigation */
+.thumbnail-modal:focus-within .thumbnail-modal-close {
+    outline: 2px solid #2196f3;
+    outline-offset: 2px;
+}
+
+.thumbnail-modal-btn:focus {
+    outline: 2px solid #2196f3;
+    outline-offset: 2px;
+}

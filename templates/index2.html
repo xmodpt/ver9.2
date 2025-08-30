@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resin Print Porta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/filemanager.css') }}">
+</head>
+<body>
+    <!-- Toolbar with Settings Button -->
+    <div class="toolbar">
+        <div class="toolbar-logo">
+            🖨️ Resin Print Portal
+        </div>
+        <div class="toolbar-spacer"></div>
+        <div class="toolbar-items">
+            <!-- Addon Toolbar Items Placeholder (Self-Contained Addons Will Inject Here) -->
+            <div id="toolbarAddonItems" class="toolbar-addon-items">
+                <!-- Self-contained addons will automatically populate this area -->
+            </div>
+            <button class="toolbar-btn settings-btn" onclick="openSettings()" aria-label="Settings" title="Settings">
+                ⚙️ <span class="settings-text">Settings</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Status Section -->
+        <div class="card">
+            <div class="card-header">
+                📊 Status
+            </div>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-label">Connection</div>
+                    <div class="status-value" id="connectionStatus">Checking...</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Print Status</div>
+                    <div class="status-value" id="printStatus">IDLE</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Progress</div>
+                    <div class="status-value" id="progressStatus">0.0%</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Z Position</div>
+                    <div class="status-value" id="zPosition">0.00 mm</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        <div id="alertArea"></div>
+
+
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Camera Section -->
+            <div class="card" id="cameraCard">
+                <div class="card-header">📹 Camera</div>
+                <div class="webcam-container">
+                    <img id="cameraStream" 
+                         src="" 
+                         alt="Live Camera Stream"
+                         style="width: 100%; height: 100%; min-height: 300px; object-fit: cover; display: block;">
+                </div>
+            </div>
+
+            <!-- Files Section -->
+            <div class="card">
+                <div class="card-header">📁 Files</div>
+                
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" multiple accept=".ctb,.cbddlp,.pwmx,.pwmo,.pwms,.pws,.pw0,.pwx" style="display: none;">
+                    <div class="upload-icon">📎</div>
+                    <div class="upload-text">Click or drop files here</div>
+                    <div class="upload-hint">CTB, CBDDLP, PWMX, PWS formats</div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn" onclick="refreshFiles()">🔄 Refresh</button>
+                    <button class="btn btn-warning" onclick="cleanupFiles()">🧹 Cleanup</button>
+                    <button class="btn btn-success" onclick="showStorageStats()">📊 Stats</button>
+                    <button class="btn btn-info" onclick="regenerateThumbnails()">🖼️ Regenerate Thumbnails</button>
+                </div>
+
+                <!-- Modern File Grid for File Manager -->
+                <div id="modernFileGrid" class="modern-file-grid">
+                    <!-- File cards will be rendered here -->
+                </div>
+
+                <!-- Storage Stats (hidden by default) -->
+                <div id="storageStats" style="display: none;">
+                    <div class="storage-stats">
+                        <div class="storage-stat">
+                            <div class="storage-stat-value" id="totalFiles">0</div>
+                            <div class="storage-stat-label">Total Files</div>
+                        </div>
+                        <div class="storage-stat">
+                            <div class="storage-stat-value" id="totalSize">0 MB</div>
+                            <div class="storage-stat-label">Total Size</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Controls and USB Grid -->
+        <div class="controls-grid">
+            <!-- Controls -->
+            <div class="card">
+                <div class="card-header">🎮 Controls</div>
+                
+                <div class="control-section">
+                    <div class="btn-group">
+                        <button class="btn" id="connectBtn" onclick="connectPrinter()">Connect</button>
+                        <button class="btn btn-danger" id="disconnectBtn" onclick="disconnectPrinter()" disabled>Disconnect</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <div class="btn-group">
+                        <button class="btn btn-success" id="startBtn" onclick="startPrint()" disabled>▶ Start</button>
+                        <button class="btn btn-warning" id="pauseBtn" onclick="pausePrint()" disabled>⏸ Pause</button>
+                        <button class="btn btn-warning" id="resumeBtn" onclick="resumePrint()" disabled>▶ Resume</button>
+                        <button class="btn btn-danger" id="stopBtn" onclick="stopPrint()" disabled>⏹ Stop</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h4>Z-Axis Movement</h4>
+                    <div class="z-controls">
+                        <button class="btn" onclick="moveZ(10)">⬆ +10mm</button>
+                        <button class="btn" onclick="moveZ(-10)">⬇ -10mm</button>
+                        <button class="btn" onclick="homeZ()">🏠 Home Z</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USB Status -->
+            <div class="card">
+                <div class="card-header">💾 USB Gadget</div>
+                <div class="usb-grid">
+                    <div class="usb-item">
+                        <div class="usb-label">Service</div>
+                        <div class="usb-value" id="usbService">Checking...</div>
+                    </div>
+                    <div class="usb-item">
+                        <div class="usb-label">Mount</div>
+                        <div class="usb-value" id="usbMount">Checking...</div>
+                    </div>
+                    <div class="usb-item">
+                        <div class="usb-label">Free Space</div>
+                        <div class="usb-value" id="usbSpace">Unknown</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 16px;">
+                    <div class="control-section">
+                        <button class="btn btn-warning" onclick="recoverUSB()">🔧 Recover USB</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Console Events -->
+        <div class="card">
+            <div class="card-header">💬 Events Console</div>
+            <div class="console-area" id="consoleArea">
+                <div class="console-line info">[12:34:56] System initialized</div>
+                <div class="console-line">Waiting for printer connection...</div>
+            </div>
+        </div>
+    </div>
+
+    
+<!-- Enhanced Printing Overlay with Camera Stream -->
+<div class="printing-overlay" id="printingOverlay">
+    <button class="close-overlay" onclick="forceClosePrintingView()">×</button>
+    
+    <!-- Camera Stream in Overlay -->
+    <div class="overlay-camera-container" id="overlayCameraContainer" style="display: none;">
+        <div class="overlay-camera-header">
+            <span>📹 Live Camera</span>
+            <button class="overlay-camera-toggle" onclick="toggleOverlayCamera()">
+                <i class="fas fa-eye-slash" id="cameraToggleIcon"></i>
+            </button>
+        </div>
+                    <div class="overlay-camera-stream">
+                <img id="overlayCameraStream"
+                     src=""
+                     alt="Live Camera">
+            </div>
+    </div>
+    
+    <div class="printing-header">
+        <div class="printing-title" id="printingFileName">Print Job</div>
+        <div class="printing-subtitle">
+            <span id="printingLayerInfo">Printing in progress...</span>
+        </div>
+    </div>
+
+    <div class="printing-main">
+        <div class="printing-icon">🧊</div>
+
+        <div class="printing-stats">
+            <div class="printing-stat">
+                <div class="printing-stat-icon">⏱️</div>
+                <div>
+                    <div class="printing-stat-value" id="printingProgress">0%</div>
+                    <div class="printing-stat-label">Progress</div>
+                </div>
+            </div>
+            <div class="printing-stat">
+                <div class="printing-stat-icon">⬇️</div>
+                <div>
+                    <div class="printing-stat-value" id="printingZPos">0.00 mm</div>
+                    <div class="printing-stat-label">Z Position</div>
+                </div>
+            </div>
+            <div class="printing-stat">
+                <div class="printing-stat-icon">📊</div>
+                <div>
+                    <div class="printing-stat-value" id="printingBytes">0%</div>
+                    <div class="printing-stat-label">Data Progress</div>
+                </div>
+            </div>
+            <div class="printing-stat">
+                <div class="printing-stat-icon">📝</div>
+                <div>
+                    <div class="printing-stat-value" id="printingStatus">Printing</div>
+                    <div class="printing-stat-label">Status</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="printing-controls">
+        <button class="printing-btn orange" id="printingPauseBtn" onclick="pausePrint()">
+            <div class="printing-btn-icon">⏸️</div>
+            <div class="printing-btn-label">Pause</div>
+        </button>
+        <button class="printing-btn purple" onclick="stopPrint()">
+            <div class="printing-btn-icon">⏹️</div>
+            <div class="printing-btn-label">Stop</div>
+        </button>
+                <button class="printing-btn blue" onclick="forceClosePrintingView()">
+            <div class="printing-btn-icon">❌</div>
+            <div class="printing-btn-label">Close</div>
+        </button>
+        <!-- Camera Toggle Button -->
+        <button class="printing-btn camera-btn" onclick="toggleOverlayCamera()" title="Toggle Camera">
+            <div class="printing-btn-icon">📹</div>
+            <div class="printing-btn-label">Camera</div>
+        </button>
+    </div>
+</div>
+
+    <!-- Settings Modal with FIXED Addon Removal -->
+    <div id="settingsModal" class="settings-modal">
+        <div class="settings-modal-content">
+            <div class="settings-modal-header">
+                <h2>⚙️ Settings - FIXED Addon Removal</h2>
+                <button class="settings-close-btn" onclick="closeSettings()">×</button>
+            </div>
+            
+            <div class="settings-modal-body">
+                <div class="settings-tabs">
+                    <button class="settings-tab active" onclick="switchSettingsTab('general')">
+                        🔧 General
+                    </button>
+                    <button class="settings-tab" onclick="switchSettingsTab('printer')">
+                        🖨️ Printer
+                    </button>
+                    <button class="settings-tab" onclick="switchSettingsTab('interface')">
+                        🎨 Interface
+                    </button>
+                    <button class="settings-tab" onclick="switchSettingsTab('addons')">
+                        🧩 Addons
+                    </button>
+                </div>
+                
+                <div class="settings-content">
+                    <div id="settingsContent">
+                        <!-- Settings content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-modal-footer">
+                <button class="btn btn-danger" onclick="resetToDefaults()">
+                    🔄 Reset to Defaults
+                </button>
+                <button class="btn" onclick="closeSettings()">
+                    Cancel
+                </button>
+                <button class="btn btn-success" onclick="saveSettings()">
+                    💾 Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+<!-- Add this to your index.html template, just before the closing </body> tag -->
+
+<!-- Thumbnail Modal -->
+<div id="thumbnailModal" class="thumbnail-modal">
+    <div class="thumbnail-modal-content">
+        <div class="thumbnail-modal-header">
+            <h3 class="thumbnail-modal-title" id="thumbnailModalTitle">File Thumbnail</h3>
+            <button class="thumbnail-modal-close" onclick="thumbnailModal.close()" title="Close (Esc)">
+                ×
+            </button>
+        </div>
+        
+        <div class="thumbnail-modal-body" id="thumbnailModalBody">
+            <div class="thumbnail-modal-loading" id="thumbnailLoading">
+                <div class="thumbnail-loading-spinner"></div>
+                <div>Loading thumbnail...</div>
+            </div>
+        </div>
+        
+        <div class="thumbnail-modal-footer">
+            <div class="thumbnail-modal-meta" id="thumbnailModalMeta">
+                <!-- File metadata will be populated here -->
+            </div>
+            
+            <div class="thumbnail-modal-actions">
+                <button class="thumbnail-modal-btn btn-secondary" onclick="thumbnailModal.downloadImage()" title="Download thumbnail (D)">
+                    <i class="fas fa-download"></i> Download
+                </button>
+                                    <button class="thumbnail-modal-btn btn-primary" onclick="if(window.thumbnailModal && window.thumbnailModal.printFile) { window.thumbnailModal.printFile(); } else { console.error('Thumbnail modal not available'); }" title="Print this file (P)">
+                        <i class="fas fa-print"></i> Print File
+                    </button>
+                <button class="thumbnail-modal-btn btn-success" onclick="thumbnailModal.openFullscreen()" title="View fullscreen (F)">
+                    <i class="fas fa-expand"></i> Fullscreen
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load the thumbnail modal CSS and JavaScript -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/thumbnail-modal.css') }}">
+<script src="{{ url_for('static', filename='js/thumbnail-modal.js') }}"></script>
+
+<!-- Update your existing file manager section -->
+<script>
+// Simple file manager initialization that works with the main filemanager.js
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait for the main file manager to be available
+    const checkFileManager = () => {
+        if (window.modernFileManager && window.thumbnailModal) {
+            console.log('🗂️ File manager and thumbnail modal are ready');
+            
+            // Ensure thumbnail modal is initialized in the file manager
+            if (typeof modernFileManager.initializeThumbnailModal === 'function') {
+                modernFileManager.initializeThumbnailModal();
+            }
+            
+            return;
+        }
+        
+        // Check again in 100ms
+        setTimeout(checkFileManager, 100);
+    };
+    
+    checkFileManager();
+});
+
+// Add keyboard shortcuts info to console
+console.log('📸 THUMBNAIL MODAL KEYBOARD SHORTCUTS:');
+console.log('   • Esc: Close modal');
+console.log('   • Space/Enter: Toggle zoom');
+console.log('   • F: Fullscreen');
+console.log('   • P: Print file');
+console.log('   • D: Download thumbnail');
+</script>
+    <!-- Load JavaScript Files -->
+    <script src="{{ url_for('static', filename='js/filemanager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/settings-templates.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/simple-camera.js') }}"></script>
+    
+    <!-- Main Application JavaScript -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    
+    <!-- Self-Contained Addon System -->
+    <script>
+        /**
+         * SELF-CONTAINED ADDON LOADER - WITH FIXED REMOVAL
+         */
+
+        (function() {
+            'use strict';
+            
+            console.log('🧩 Self-contained addon loader starting...');
+            
+            // Wait for DOM to be ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeAddonSystem);
+            } else {
+                // Give main app time to load first
+                setTimeout(initializeAddonSystem, 500);
+            }
+            
+            function initializeAddonSystem() {
+                console.log('🔧 Initializing self-contained addon system...');
+                
+                // Load Font Awesome for addon icons
+                loadFontAwesome();
+                
+                // Wait for main app to finish loading, then load addons
+                setTimeout(() => {
+                    loadAllAddons();
+                }, 1000);
+            }
+            
+            function loadFontAwesome() {
+                if (!document.querySelector('link[href*="font-awesome"]')) {
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+                    document.head.appendChild(link);
+                    console.log('📚 Font Awesome loaded for addon icons');
+                }
+            }
+            
+            async function loadAllAddons() {
+                try {
+                    console.log('🔄 Loading all addons...');
+                    
+                    // Load toolbar addons
+                    await loadToolbarAddons();
+                    
+                    // Load card addons
+                    await loadCardAddons();
+                    
+                    console.log('✅ All addons loaded successfully');
+                    
+                } catch (error) {
+                    console.log('ℹ️ Addon loading completed with some issues:', error.message);
+                }
+            }
+            
+            async function loadToolbarAddons() {
+                try {
+                    const response = await fetch('/addons/toolbar_items');
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const toolbarItems = await response.json();
+                    
+                    if (toolbarItems && toolbarItems.length > 0) {
+                        integrateToolbarItems(toolbarItems);
+                        console.log(`✅ Loaded ${toolbarItems.length} toolbar addon(s)`);
+                    } else {
+                        console.log('ℹ️ No toolbar addons found');
+                    }
+                    
+                } catch (error) {
+                    console.log('ℹ️ No toolbar addons available:', error.message);
+                }
+            }
+            
+            function integrateToolbarItems(toolbarItems) {
+                const toolbarContainer = document.getElementById('toolbarAddonItems');
+                if (!toolbarContainer) {
+                    console.warn('⚠️ Toolbar addon container not found');
+                    return;
+                }
+                
+                toolbarContainer.innerHTML = '';
+                
+                toolbarItems.forEach((item, index) => {
+                    try {
+                        const button = document.createElement('button');
+                        button.className = `toolbar-btn ${item.class || ''}`;
+                        
+                        let iconHtml = '';
+                        if (item.icon) {
+                            if (item.icon.startsWith('fas ') || item.icon.startsWith('far ') || item.icon.startsWith('fab ')) {
+                                iconHtml = `<i class="${item.icon}"></i> `;
+                            } else {
+                                iconHtml = `${item.icon} `;
+                            }
+                        }
+                        
+                        button.innerHTML = `${iconHtml}${item.label}`;
+                        button.title = item.tooltip || item.label;
+                        
+                        if (item.data) {
+                            Object.entries(item.data).forEach(([key, value]) => {
+                                button.setAttribute(`data-${key}`, String(value));
+                            });
+                        }
+                        
+                        button.onclick = function() {
+                            if (item.action && typeof window[item.action] === 'function') {
+                                try {
+                                    window[item.action](item.data || {});
+                                } catch (error) {
+                                    console.error(`Error executing addon action ${item.action}:`, error);
+                                    if (typeof window.showAlert === 'function') {
+                                        window.showAlert(`Addon error: ${error.message}`, 'error');
+                                    }
+                                }
+                            } else {
+                                console.warn(`❌ Addon action function not found: ${item.action}`);
+                                if (typeof window.showAlert === 'function') {
+                                    window.showAlert(`Addon function "${item.action}" not available`, 'warning');
+                                }
+                            }
+                        };
+                        
+                        toolbarContainer.appendChild(button);
+                        
+                    } catch (error) {
+                        console.error(`❌ Failed to add toolbar item ${index}:`, error);
+                    }
+                });
+            }
+            
+            // Card addon functionality removed - container no longer exists
+            async function loadCardAddons() {
+                console.log('ℹ️ Card addons disabled - container removed');
+            }
+            
+            function integrateCardAddons(cardAddons) {
+                console.log('ℹ️ Card addons disabled - container removed');
+            }
+            
+            // Make refresh function globally available
+            window.refreshAddons = function() {
+                console.log('🔄 Refreshing all addons...');
+                loadAllAddons();
+            };
+            
+        })();
+    </script>
+
+    <script>
+        // Load camera configuration dynamically
+        async function loadCameraConfig() {
+            try {
+                const response = await fetch('/api/camera/config');
+                if (response.ok) {
+                    const config = await response.json();
+                    
+                    // Update camera stream URLs
+                    const cameraStream = document.getElementById('cameraStream');
+                    const overlayCameraStream = document.getElementById('overlayCameraStream');
+                    
+                    if (cameraStream) {
+                        cameraStream.src = config.streamUrl;
+                        console.log('📹 Camera stream URL updated:', config.streamUrl);
+                    }
+                    
+                    if (overlayCameraStream) {
+                        overlayCameraStream.src = config.streamUrl;
+                        console.log('📹 Overlay camera stream URL updated:', config.streamUrl);
+                    }
+                    
+                    // Store camera config globally for other functions
+                    window.cameraConfig = config;
+                    
+                    // Dispatch event for other scripts to listen to
+                    window.dispatchEvent(new CustomEvent('cameraConfigLoaded', { detail: config }));
+                    
+                } else {
+                    console.warn('⚠️ Failed to load camera config');
+                }
+            } catch (error) {
+                console.error('❌ Error loading camera config:', error);
+            }
+        }
+        
+        // Load camera config when page loads
+        document.addEventListener('DOMContentLoaded', loadCameraConfig);
+        
+        // Log the fixed addon removal feature
+        console.log('🎉 RESIN PRINT PORTAL - COMPLETE FEATURE SET');
+        console.log('✅ Full printer control and file management');
+        console.log('✅ Working addon system with FIXED removal functionality');
+        console.log('✅ Live camera streaming and photo capture');
+        console.log('✅ Auto-start camera option in settings');
+        console.log('✅ Fullscreen camera view');
+        console.log('✅ Photo capture with flash effect');
+        console.log('✅ Camera status monitoring');
+        console.log('🗑️ FIXED: Addon removal now deletes files from filesystem!');
+        console.log('🔄 After removal, addons will NOT reload after system reboot!');
+        console.log('🌐 Dynamic camera IP detection enabled!');
+    </script>
+</body>
+</html>
