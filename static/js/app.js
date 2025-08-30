@@ -284,28 +284,43 @@ function updateButtonStates(isConnected, printState) {
             if (buttons.start) buttons.start.disabled = false;
             if (buttons.pause) buttons.pause.disabled = true;
             if (buttons.resume) buttons.resume.disabled = true;
-            if (buttons.stop) buttons.stop.disabled = true;
+            if (buttons.stop) buttons.stop.disabled = true; // Only disable when truly idle
             break;
             
         case 'PRINTING':
             if (buttons.start) buttons.start.disabled = true;
             if (buttons.pause) buttons.pause.disabled = false;
             if (buttons.resume) buttons.resume.disabled = true;
-            if (buttons.stop) buttons.stop.disabled = false;
+            // CRITICAL FIX: Keep stop button ENABLED during printing
+            if (buttons.stop) {
+                buttons.stop.disabled = false;
+                buttons.stop.style.cursor = 'pointer';
+                buttons.stop.style.pointerEvents = 'auto';
+            }
             break;
             
         case 'PAUSED':
             if (buttons.start) buttons.start.disabled = true;
             if (buttons.pause) buttons.pause.disabled = true;
             if (buttons.resume) buttons.resume.disabled = false;
-            if (buttons.stop) buttons.stop.disabled = false;
+            // CRITICAL FIX: Keep stop button ENABLED when paused
+            if (buttons.stop) {
+                buttons.stop.disabled = false;
+                buttons.stop.style.cursor = 'pointer';
+                buttons.stop.style.pointerEvents = 'auto';
+            }
             break;
             
         default:
             if (buttons.start) buttons.start.disabled = true;
             if (buttons.pause) buttons.pause.disabled = true;
             if (buttons.resume) buttons.resume.disabled = true;
-            if (buttons.stop) buttons.stop.disabled = false;
+            // Keep stop enabled for safety
+            if (buttons.stop) {
+                buttons.stop.disabled = false;
+                buttons.stop.style.cursor = 'pointer';
+                buttons.stop.style.pointerEvents = 'auto';
+            }
             break;
     }
 }
