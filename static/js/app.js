@@ -368,6 +368,7 @@ function closePrintingView() {
             console.log('📺 Integrated printing overlay closed - print finished');
         }
     }
+    // Remove any line that says: closePrintingView();
 }
 
 function forceClosePrintingView() {
@@ -484,13 +485,13 @@ async function updateStatus() {
             const hadSession = getCurrentPrintSession() !== '';
             if (hadSession) {
                 clearOverlayDisableAndSession();
-                console.log('✅ Print finished - session cleared');
+                console.log('Print finished - session cleared');
             }
         }
         
         // Check if this is a new print starting
         if (isNewPrintStarting(newPrintStatus, oldPrintStatus, selectedFile)) {
-            console.log('🆕 New print detected - overlay enabled');
+            console.log('New print detected - overlay enabled');
         }
         
         // Update print status display
@@ -513,7 +514,7 @@ async function updateStatus() {
                 if (!isActivePrint || !hasValidSession) {
                     stopRequestInProgress = false;
                     forcedClosed = false;
-                    closePrintingView();
+                    // REMOVED: closePrintingView(); - This was causing the infinite recursion
                 }
             }
         }
@@ -535,6 +536,7 @@ async function updateStatus() {
             zPositionElement.textContent = `${data.z_position?.toFixed(2) || '0.00'} mm`;
         }
         
+        // This is the critical line that updates your button states
         updateButtonStates(data.connected, newPrintStatus);
         
     } catch (error) {
@@ -724,14 +726,16 @@ async function connectPrinter() {
         if (result.success) {
             showAlert('Connected to printer', 'success');
             addConsoleMessage('Printer connected', 'success');
+            
+            // FORCE UI UPDATE - Add this line:
+            updateButtonStates(true, 'IDLE');
+            
             updateStatus();
         } else {
             showAlert(`Connection failed: ${result.error}`, 'error');
-            addConsoleMessage(`Connection failed: ${result.error}`, 'error');
         }
     } catch (error) {
         showAlert(`Connection error: ${error.message}`, 'error');
-        addConsoleMessage(`Connection error: ${error.message}`, 'error');
     }
 }
 
