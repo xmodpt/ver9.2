@@ -595,45 +595,5 @@
         console.log('🔄 After removal, addons will NOT reload after system reboot!');
         console.log('🌐 Dynamic camera IP detection enabled!');
     </script>
-    <script>
-window.addonToggleRelay = function(data) {
-    const relayId = typeof data === 'string' ? data : (data && data.relay_id);
-    
-    if (!relayId) {
-        console.error('No relay ID provided');
-        return;
-    }
-    
-    console.log('Toggling relay:', relayId);
-    
-    fetch('/addons/relay_controller/toggle/' + relayId, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Toggle response:', data);
-        if (data.success) {
-            if (typeof showAlert === 'function') {
-                showAlert(data.message, 'success');
-            }
-        } else {
-            if (typeof showAlert === 'function') {
-                showAlert(data.message || 'Failed to toggle relay', 'error');
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Toggle error:', error);
-        if (typeof showAlert === 'function') {
-            showAlert('Network error: ' + error.message, 'error');
-        }
-    });
-};
-
-console.log('addonToggleRelay function loaded');
-</script>
-</body>
+ </body>
 </html>
